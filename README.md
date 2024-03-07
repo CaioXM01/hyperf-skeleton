@@ -110,6 +110,16 @@ A aplicação possui as seguintes rotas:
             "payee": 2
         }
     ```
+- `POST /transaction/refound/{id}`: Realiza o reembolso da transação.
+    
+    Payload:
+    ```php
+        {
+            "refound_reason": "teste"
+        }
+    ```
+- `GET /transaction`: Obtem todas as transações.
+
 
 #### User
     
