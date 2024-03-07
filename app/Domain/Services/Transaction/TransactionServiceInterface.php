@@ -17,17 +17,17 @@ interface TransactionServiceInterface
      * Refund a transaction.
      *
      * @param string $transactionId
+     * @param string|null $refound_reason
      * @return bool
      * @throws \Exception if the refund fails
      */
-    public function refundTransaction(string $transactionId): bool;
+    public function refundTransaction(string $transactionId, ?string $refound_reason): bool;
 
     /**
-     * Find transactions by user id.
+     * Find all transactions.
      *
-     * @param string $userId
      * @return array
      * @throws \Exception if the find fails
      */
-    public function findTransactionsByUser(string $userId): array;
+    public function findAllTransactions(): array;
 }

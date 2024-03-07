@@ -32,4 +32,27 @@ class TransactionController extends AbstractController
 			return $this->response->json(['status' => 'error', 'message' => $e->getMessage()], $e->getCode() || StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR);
 		}
 	}
+
+    public function refundTransaction()
+	{
+        $transactionId = $this->request->route('id');
+        $dataRequest = $this->request->all();
+
+		try {
+			$this->transactionService->refundTransaction($transactionId, $dataRequest["refound_reason"]);
+			return $this->response->json(['status' => 'ok'], StatusCodeInterface::STATUS_CREATED);
+		} catch (\Exception $e) {
+			return $this->response->json(['status' => 'error', 'message' => $e->getMessage()], $e->getCode() || StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR);
+		}
+	}
+
+    public function findAllTransactions()
+	{
+		try {
+			$transactions = $this->transactionService->findAllTransactions();
+			return $this->response->json($transactions, StatusCodeInterface::STATUS_OK);
+		} catch (\Exception $e) {
+			return $this->response->json(['status' => 'error', 'message' => $e->getMessage()], $e->getCode() || StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR);
+		}
+	}
 }

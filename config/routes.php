@@ -28,4 +28,6 @@ Router::addGroup('/users', function () {
 
 Router::addGroup('/transaction', function () {
     Router::post('', [TransactionController::class, 'performTransaction']);
+    Router::post('/refound/{id}', [TransactionController::class, 'refundTransaction']);
+    Router::get('', [TransactionController::class, 'findAllTransactions']);
 });
