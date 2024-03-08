@@ -161,3 +161,25 @@ Script docker adaptado para a avaliação objetiva do projeto
 ```
 docker run -it --rm -v ./:/app -w /app jakzal/phpqa phpmd app text cleancode,codesize,controversial,design,naming,unusedcode
 ```
+
+
+
+# Possíveis Melhorias Futuras
+
+- **Implementação de Tokens JWT**: Adicionar autenticação baseada em tokens JWT para melhorar a segurança da API e permitir que os usuários façam login e protejam as rotas sensíveis.
+
+- **Melhorias na Validação de Dados**: Reforçar a validação de dados, incluindo a validação de formatos de CPF/CNPJ e e-mails, utilizando bibliotecas especializadas ou criando validadores personalizados.
+
+- **Implementação de Webhooks**: Adicionar suporte para webhooks, permitindo que serviços externos recebam notificações instantâneas sobre eventos importantes, como transações concluídas ou atualizações de saldo.
+
+- **Melhorias na Experiência do Usuário**: Fornecer respostas mais descritivas e amigáveis para o usuário, além de documentação clara sobre como usar os endpoints.
+
+- **Otimização de Desempenho**: Realizar ajustes de desempenho na API, incluindo otimizações de consulta ao banco de dados, cache de dados frequentemente acessados e implementação de paginadores para resultados de consulta volumosos.
+
+- **Implementação de Testes de Integração**: Desenvolver testes de integração automatizados para garantir que todas as funcionalidades da API estejam funcionando conforme o esperado, incluindo casos de uso envolvendo transferências de dinheiro e notificações de pagamento.
+
+- **Adicionar mais Testes Unitários**: Aumentar a cobertura dos testes unitários (atualmente só é testado a função principal de transação), garantindo a integridade e o comportamento esperado de cada componente da API.
+
+- **Monitoramento e Logging Avançados**: Implementar ferramentas de monitoramento e logging avançados para rastrear o desempenho da API, identificar problemas de forma proativa e melhorar a resolução de problemas.
+
+Essas melhorias ajudarão a tornar a API mais robusta, segura e escalável, proporcionando uma melhor experiência para os usuários e facilitando o gerenciamento do sistema como um todo.
