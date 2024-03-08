@@ -116,15 +116,15 @@ class TransactionService implements TransactionServiceInterface
         return false;
     }
 
-    public function refundTransaction(string $transactionId, ?string $refound_reason): bool
+    public function chargebackTransaction(string $transactionId, ?string $chargeback_reason): bool
     {
         $transaction = $this->transactionRepo->findById($transactionId);
         if (!$transaction) {
             throw new Exception('Transaction not found.', StatusCodeInterface::STATUS_NOT_FOUND);
         }
 
-        if ($transaction->refound_at) {
-            throw new Exception('The transaction has already been refunded.', StatusCodeInterface::STATUS_UNPROCESSABLE_ENTITY);
+        if ($transaction->chargeback_at) {
+            throw new Exception('The transaction has already been chargeback.', StatusCodeInterface::STATUS_UNPROCESSABLE_ENTITY);
         }
 
         $parallel1 = new Parallel();
@@ -135,7 +135,7 @@ class TransactionService implements TransactionServiceInterface
         $parallel2 = new Parallel();
         $parallel2->add(fn () => $this->userService->updateBalance($payer, $transaction->value, 'credit'));
         $parallel2->add(fn () => $this->userService->updateBalance($payee, $transaction->value, 'debit'));
-        $parallel2->add(fn () => $this->transactionRepo->setRefund($transaction->id, $refound_reason));
+        $parallel2->add(fn () => $this->transactionRepo->setRefund($transaction->id, $chargeback_reason));
         $parallel2->wait();
         return true;
     }

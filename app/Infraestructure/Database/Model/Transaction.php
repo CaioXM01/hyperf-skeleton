@@ -9,10 +9,10 @@ use Hyperf\DbConnection\Model\Model;
  * @property float $value
  * @property int $payer_id
  * @property int $payee_id
- * @property string $refound_reason
+ * @property string $chargeback_reason
  * @property \Carbon\Carbon $notified_at
  * @property \Carbon\Carbon $transferred_at
- * @property \Carbon\Carbon $refound_at
+ * @property \Carbon\Carbon $chargeback_at
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  */
@@ -29,7 +29,7 @@ class Transaction extends Model
      * @var array
      */
     protected array $fillable = [
-        'id', 'value', 'payer_id', 'payee_id', 'notified_at', 'transferred_at', 'refound_at', 'refound_reason'
+        'id', 'value', 'payer_id', 'payee_id', 'notified_at', 'transferred_at', 'chargeback_at', 'chargeback_reason'
     ];
 
     /**

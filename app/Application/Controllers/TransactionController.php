@@ -33,13 +33,13 @@ class TransactionController extends AbstractController
 		}
 	}
 
-    public function refundTransaction()
+    public function chargebackTransaction()
 	{
         $transactionId = $this->request->route('id');
         $dataRequest = $this->request->all();
 
 		try {
-			$this->transactionService->refundTransaction($transactionId, $dataRequest["refound_reason"]);
+			$this->transactionService->chargebackTransaction($transactionId, $dataRequest["chargeback_reason"]);
 			return $this->response->json(['status' => 'ok'], StatusCodeInterface::STATUS_CREATED);
 		} catch (\Exception $e) {
 			return $this->response->json(['status' => 'error', 'message' => $e->getMessage()], $e->getCode() || StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR);

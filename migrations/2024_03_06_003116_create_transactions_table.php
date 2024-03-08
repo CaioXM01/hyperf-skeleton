@@ -16,9 +16,9 @@ class CreateTransactionsTable extends Migration
             $table->decimal('value', 10, 2);
             $table->unsignedBigInteger('payer_id');
             $table->unsignedBigInteger('payee_id');
-            $table->text('refound_reason')->nullable();
+            $table->text('chargeback_reason')->nullable();
             $table->timestamp('transferred_at')->nullable();
-            $table->timestamp('refound_at')->nullable();
+            $table->timestamp('chargeback_at')->nullable();
             $table->timestamp('notified_at')->nullable();
             $table->timestamps();
 

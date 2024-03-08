@@ -17,11 +17,11 @@ interface TransactionServiceInterface
      * Refund a transaction.
      *
      * @param string $transactionId
-     * @param string|null $refound_reason
+     * @param string|null $chargeback_reason
      * @return bool
      * @throws \Exception if the refund fails
      */
-    public function refundTransaction(string $transactionId, ?string $refound_reason): bool;
+    public function chargebackTransaction(string $transactionId, ?string $chargeback_reason): bool;
 
     /**
      * Find all transactions.

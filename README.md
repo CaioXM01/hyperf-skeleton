@@ -110,12 +110,12 @@ A aplicação possui as seguintes rotas:
             "payee": 2
         }
     ```
-- `POST /transaction/refound/{id}`: Realiza o reembolso da transação.
+- `POST /transaction/chargeback/{id}`: Realiza o estorno da transação.
     
     Payload:
     ```php
         {
-            "refound_reason": "teste"
+            "chargeback_reason": "teste"
         }
     ```
 - `GET /transaction`: Obtem todas as transações.
@@ -139,10 +139,10 @@ A aplicação possui as seguintes rotas:
     float $value;
     int $payer_id;
     int $payee_id;
-    string $refound_reason;
+    string $chargeback_reason;
     date $notified_at;
     date $transferred_at;
-    date $refound_at;
+    date $chargeback_at;
     date $created_at;
     date $updated_at;
 

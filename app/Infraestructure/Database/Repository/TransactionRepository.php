@@ -79,15 +79,15 @@ class TransactionRepository implements TransactionRepositoryInterface
      * Set a refund for the transaction.
      *
      * @param string $transactionId
-     * @param string $refoundReason
+     * @param string $chargebackReason
      * @return bool
      */
-    public function setRefund(string $transactionId, string $refoundReason): bool
+    public function setRefund(string $transactionId, string $chargebackReason): bool
     {
         $transaction = $this->transactionModel->find($transactionId);
         if ($transaction) {
-            $transaction->refound_at = $this->carbon->now();
-            $transaction->refound_reason = $refoundReason;
+            $transaction->chargeback_at = $this->carbon->now();
+            $transaction->chargeback_reason = $chargebackReason;
             $transaction->save();
             return true;
         }

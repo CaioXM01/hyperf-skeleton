@@ -41,10 +41,10 @@ interface TransactionRepositoryInterface
      * Set a refund for the transaction.
      *
      * @param string $transactionId
-     * @param string $refoundReason
+     * @param string $chargebackReason
      * @return bool
      */
-    public function setRefund(string $transactionId, string $refoundReason): bool;
+    public function setRefund(string $transactionId, string $chargebackReason): bool;
 
     /**
      * Set a transferred_at for the transaction.
