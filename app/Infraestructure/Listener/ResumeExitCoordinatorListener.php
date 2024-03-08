@@ -30,7 +30,6 @@ class ResumeExitCoordinatorListener implements ListenerInterface
 
     public function process(object $event): void
     {
-        var_dump($event);
         CoordinatorManager::until(Constants::WORKER_EXIT)->resume();
     }
 }
