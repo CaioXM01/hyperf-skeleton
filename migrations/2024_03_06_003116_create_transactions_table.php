@@ -22,7 +22,6 @@ class CreateTransactionsTable extends Migration
             $table->timestamp('notified_at')->nullable();
             $table->timestamps();
 
-            // Definindo as chaves estrangeiras
             $table->foreign('payer_id')->references('id')->on('users');
             $table->foreign('payee_id')->references('id')->on('users');
         });

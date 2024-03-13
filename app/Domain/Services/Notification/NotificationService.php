@@ -21,12 +21,9 @@ class NotificationService implements NotificationServiceInterface
     public function sendNotification(): bool
     {
         $notification = $this->notificationClient->sendNotification();
-        echo "\n", $notification['message'];
         if ($notification['message'] === true) {
-            echo "\n deu bom";
             return true;
         }
-        echo "\n", "Notification not sent, notification service may be unavailable or unstable.";
         return false;
     }
 }

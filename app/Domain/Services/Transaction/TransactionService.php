@@ -48,12 +48,10 @@ class TransactionService implements TransactionServiceInterface
 
     public function performTransaction(array $transactionData): bool
     {
-        // Extrair dados da transação
         $payerId = $transactionData['payer'];
         $payeeId = $transactionData['payee'];
         $amount = $transactionData['value'];
 
-        // Verificar se o pagador e o recebedor são diferentes
         if ($payerId === $payeeId) {
             throw new Exception('Payer and payee cannot be the same user.', StatusCodeInterface::STATUS_UNPROCESSABLE_ENTITY);
         }

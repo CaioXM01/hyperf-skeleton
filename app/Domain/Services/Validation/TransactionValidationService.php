@@ -25,7 +25,6 @@ class TransactionValidationService implements TransactionValidationServiceInterf
     public function checkExternalAuthorizerService(): void
     {
         $authorization = $this->authorizationClient->checkAuthorization();
-        echo "\n", $authorization['message'];
         if ($authorization['message'] !== 'Autorizado') {
             throw new Exception('The external authorizing service did not authorize the transfer.', StatusCodeInterface::STATUS_FORBIDDEN);
         }

@@ -17,13 +17,11 @@ class TransactionServiceTest extends TestCase
 {
     public function testPerformTransaction()
     {
-        // Criar mocks para as dependências
         $transactionRepo = $this->createMock(TransactionRepositoryInterface::class);
         $userService = $this->createMock(UserServiceInterface::class);
         $validationService = $this->createMock(TransactionValidationServiceInterface::class);
         $notificationService = $this->createMock(NotificationServiceInterface::class);
 
-        // Configurar stubs e expectativas de métodos mock
         $transactionRepo->method('createTransaction')->willReturn(
             new Transaction([
                 "id" => "8181b4dc-e5c9-4221-b20c-4decb9e54440",
@@ -36,15 +34,14 @@ class TransactionServiceTest extends TestCase
         );
 
         $userService->method('getUserById')->willReturn(
-            new User(['id' => 'payer_id', 'balance' => 100]), // Simulação do pagador
-            new User(['id' => 'payee_id', 'balance' => 50])   // Simulação do recebedor
+            new User(['id' => 'payer_id', 'balance' => 100]),
+            new User(['id' => 'payee_id', 'balance' => 50])
         );
 
-        $userService->method('updateBalance')->willReturn(true); // Simula o sucesso da atualização de saldo
+        $userService->method('updateBalance')->willReturn(true);
 
-        $notificationService->method('sendNotification')->willReturn(true); // Simula o sucesso do envio de notificação
+        $notificationService->method('sendNotification')->willReturn(true);
 
-        // Injete as dependências mockadas na classe TransactionService
         $transactionService = new TransactionService(
             $transactionRepo,
             $userService,
@@ -52,17 +49,14 @@ class TransactionServiceTest extends TestCase
             $notificationService
         );
 
-        // Dados de transação
         $transactionData = [
             'payer' => 1,
             'payee' => 4,
             'value' => 50
         ];
 
-        // Chame o método a ser testado
         $result = $transactionService->performTransaction($transactionData);
 
-        // Verifique se o resultado é o esperado
         $this->assertTrue($result);
     }
 }

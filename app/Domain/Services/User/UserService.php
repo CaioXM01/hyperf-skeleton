@@ -35,7 +35,6 @@ class UserService implements UserServiceInterface
 
     public function registerUser(User $userData): bool
     {
-        // Verificar se o e-mail já está cadastrado
         $existingUser = $this->userRepository->findByEmail($userData['email']);
         if ($existingUser !== null) {
             throw new Exception("E-mail já cadastrado.");
@@ -46,10 +45,8 @@ class UserService implements UserServiceInterface
             throw new Exception("CPF/CNPJ já cadastrado.");
         }
 
-        // Criar o novo usuário
         $user = $this->userRepository->createUser($userData);
 
-        // Verificar se o usuário foi criado com sucesso
         if (!$user) {
             throw new Exception("Falha ao cadastrar o usuário.");
         }
@@ -75,8 +72,6 @@ class UserService implements UserServiceInterface
 
         $newUserBalance = $user->balance;
 
-        echo  $user->balance,"\n\n";
-
         if ($operation === OperationEnum::CREDIT) {
             $newUserBalance += $amount;
         }
@@ -84,8 +79,6 @@ class UserService implements UserServiceInterface
         if ($operation === OperationEnum::DEBIT) {
             $newUserBalance -= $amount;
         }
-
-        echo $user->id, " ", $operation, " ", $newUserBalance, "\n\n";
 
         return $this->userRepository->updateBalance($user, $newUserBalance);
     }
