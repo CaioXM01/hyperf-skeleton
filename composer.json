@@ -30,6 +30,7 @@
         "hyperf/rpc": "~3.1.0",
         "hyperf/rpc-client": "~3.1.0",
         "hyperf/rpc-server": "~3.1.0",
+        "hyperf/validation": "^3.1",
         "ramsey/uuid": "^4.7"
     },
     "require-dev": {

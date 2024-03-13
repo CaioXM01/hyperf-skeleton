@@ -2,6 +2,8 @@
 
 namespace App\Application\Controllers;
 
+use App\Application\Services\Validation\Request\TransactionRequest;
+use App\Application\Services\Validation\Request\ChargebackTransactionRequest;
 use App\Domain\Services\Transaction\TransactionServiceInterface;
 use App\Infraestructure\HttpClients\TransferAuthorizationClient;
 use Fig\Http\Message\StatusCodeInterface;
@@ -23,20 +25,21 @@ class TransactionController extends AbstractController
 		$this->transactionService = $transactionService;
 	}
 
-	public function performTransaction()
+	public function performTransaction(TransactionRequest $request)
 	{
+        $request->validated();
 		try {
-			$this->transactionService->performTransaction($this->request->all());
+			$this->transactionService->performTransaction($request->all());
 			return $this->response->json(['status' => 'ok'], StatusCodeInterface::STATUS_CREATED);
 		} catch (\Exception $e) {
 			return $this->response->json(['status' => 'error', 'message' => $e->getMessage()], $e->getCode() || StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR);
 		}
 	}
 
-    public function chargebackTransaction()
+    public function chargebackTransaction(ChargebackTransactionRequest $request)
 	{
         $transactionId = $this->request->route('id');
-        $dataRequest = $this->request->all();
+        $dataRequest = $request->validated();
 
 		try {
 			$this->transactionService->chargebackTransaction($transactionId, $dataRequest["chargeback_reason"]);
