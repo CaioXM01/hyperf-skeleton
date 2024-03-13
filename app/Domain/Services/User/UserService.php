@@ -2,7 +2,8 @@
 
 namespace App\Domain\Services\User;
 
-use App\Infraestructure\Database\Model\User;
+use App\Domain\DTO\User\CreateUserDto;
+use App\Domain\DTO\User\UserDto;
 use App\Domain\Repository\UserRepositoryInterface;
 use App\Domain\Services\User\UserServiceInterface;
 use App\Domain\Entities\Enum\OperationEnum;
@@ -33,14 +34,14 @@ class UserService implements UserServiceInterface
         $this->operationEnum = $operationEnum;
     }
 
-    public function registerUser(User $userData): bool
+    public function registerUser(CreateUserDto $userData): bool
     {
-        $existingUser = $this->userRepository->findByEmail($userData['email']);
+        $existingUser = $this->userRepository->findByEmail($userData->email);
         if ($existingUser !== null) {
             throw new Exception("E-mail já cadastrado.");
         }
 
-        $existingUser = $this->userRepository->findByDocument($userData['document']);
+        $existingUser = $this->userRepository->findByDocument($userData->document);
         if ($existingUser !== null) {
             throw new Exception("CPF/CNPJ já cadastrado.");
         }
@@ -54,7 +55,7 @@ class UserService implements UserServiceInterface
         return true;
     }
 
-    public function getUserById(string $userId): ?User
+    public function getUserById(string $userId): ?UserDto
     {
         return $this->userRepository->findById($userId);
     }
@@ -64,7 +65,7 @@ class UserService implements UserServiceInterface
         return $this->userRepository->findAll();
     }
 
-    public function updateBalance(User $user, float $amount, string $operation): bool
+    public function updateBalance(UserDto $user, float $amount, string $operation): bool
     {
         if (!$this->operationEnum->isValid($operation)) {
             throw new Exception('Invalid operation.', StatusCodeInterface::STATUS_BAD_REQUEST);
@@ -83,7 +84,7 @@ class UserService implements UserServiceInterface
         return $this->userRepository->updateBalance($user, $newUserBalance);
     }
 
-    public function rollbackBalance(User $user, float $userBalance): bool
+    public function rollbackBalance(UserDto $user, float $userBalance): bool
     {
         return $this->userRepository->updateBalance($user, $userBalance);
     }

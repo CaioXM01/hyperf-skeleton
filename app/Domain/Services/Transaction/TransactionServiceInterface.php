@@ -2,16 +2,18 @@
 
 namespace App\Domain\Services\Transaction;
 
+use App\Domain\DTO\Transaction\CreateTransactionDto;
+
 interface TransactionServiceInterface
 {
     /**
      * Perform a transaction between two users.
      *
-     * @param array $transactionData
+     * @param CreateTransactionDto $transactionData
      * @return bool
      * @throws \Exception if the transaction fails
      */
-    public function performTransaction(array $transactionData): bool;
+    public function performTransaction(CreateTransactionDto $transactionData): bool;
 
     /**
      * Refund a transaction.

@@ -2,11 +2,12 @@
 
 namespace App\Domain\Services\Transaction;
 
+use App\Domain\DTO\Transaction\CreateTransactionDto;
+use App\Domain\DTO\User\UserDto;
 use App\Domain\Services\User\UserServiceInterface;
 use App\Domain\Repository\TransactionRepositoryInterface;
 use App\Domain\Services\Notification\NotificationServiceInterface;
 use App\Domain\Services\Validation\TransactionValidationServiceInterface;
-use App\Infraestructure\Database\Model\User;
 use Hyperf\Coroutine\Parallel;
 use Fig\Http\Message\StatusCodeInterface;
 use Exception;
@@ -46,11 +47,11 @@ class TransactionService implements TransactionServiceInterface
         $this->notificationService = $notificationService;
     }
 
-    public function performTransaction(array $transactionData): bool
+    public function performTransaction(CreateTransactionDto $transactionData): bool
     {
-        $payerId = $transactionData['payer'];
-        $payeeId = $transactionData['payee'];
-        $amount = $transactionData['value'];
+        $payerId = $transactionData->payer;
+        $payeeId = $transactionData->payee;
+        $amount = $transactionData->value;
 
         if ($payerId === $payeeId) {
             throw new Exception('Payer and payee cannot be the same user.', StatusCodeInterface::STATUS_UNPROCESSABLE_ENTITY);
@@ -63,11 +64,7 @@ class TransactionService implements TransactionServiceInterface
 
         $this->validationService->validate($payer, $payee, $amount);
 
-        $transaction = $this->transactionRepo->createTransaction([
-            "value" => $amount,
-            "payer_id" => $payerId,
-            "payee_id" => $payeeId,
-        ]);
+        $transaction = $this->transactionRepo->createTransaction($transactionData);
 
         $currentPayerBalance = $payer->balance;
         $currentPayeeBalance = $payee->balance;
@@ -88,9 +85,9 @@ class TransactionService implements TransactionServiceInterface
     }
 
     public function rollbackTransaction(
-        User $oldPayer,
+        UserDto $oldPayer,
         float $oldPayerBalance,
-        User $oldPayee,
+        UserDto $oldPayee,
         float $oldPayeeBalance,
         string $transactionId
     ): bool

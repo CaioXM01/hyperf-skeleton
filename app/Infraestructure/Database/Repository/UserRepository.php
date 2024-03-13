@@ -2,8 +2,11 @@
 
 namespace App\Infraestructure\Database\Repository;
 
+use App\Domain\DTO\User\CreateUserDto;
+use App\Domain\DTO\User\UserDto;
 use App\Infraestructure\Database\Model\User;
 use App\Domain\Repository\UserRepositoryInterface;
+use Carbon\Carbon;
 
 class UserRepository implements UserRepositoryInterface
 {
@@ -13,28 +16,36 @@ class UserRepository implements UserRepositoryInterface
     protected $userModel;
 
     /**
+     * @var Carbon
+     */
+    protected $carbon;
+
+    /**
      * @param User $userModel
      */
-    public function __construct(User $userModel)
-    {
+    public function __construct(
+        User $userModel,
+        Carbon $carbon
+    ) {
         $this->userModel = $userModel;
+        $this->carbon = $carbon;
     }
 
     /**
      * Method to create a new user.
      *
-     * @param array $userData
-     * @return User
+     * @param CreateUserDto $userData
+     * @return bool
      */
-    public function createUser(User $userData): bool
+    public function createUser(CreateUserDto $userData): bool
     {
         $user = new User([
-            "name" => $userData['name'],
-            "email" => $userData['email'],
-            "password" => password_hash($userData['password'], PASSWORD_BCRYPT),
-            "document" => $userData['document'],
-            "balance" => $userData['balance'],
-            "type" => $userData['type']
+            "name" => $userData->name,
+            "email" => $userData->email,
+            "password" => password_hash($userData->password, PASSWORD_BCRYPT),
+            "document" => $userData->document,
+            "balance" => $userData->balance,
+            "type" => $userData->type
         ]);
 
         return $user->save();
@@ -43,7 +54,7 @@ class UserRepository implements UserRepositoryInterface
     /**
      * Method to retrieve all users.
      *
-     * @return User[]|null
+     * @return UserDto[]|null
      */
     public function findAll(): ?array
     {
@@ -55,42 +66,46 @@ class UserRepository implements UserRepositoryInterface
      * Method to retrieve a user by email.
      *
      * @param string $email
-     * @return User|null
+     * @return UserDto|null
      */
-    public function findByEmail(string $email): ?User
+    public function findByEmail(string $email): ?UserDto
     {
-        return $this->userModel->where('email', $email)->first();
+        $user = $this->userModel->where('email', $email)->first();
+        return $this->mapSingleToDto($user);
     }
 
     /**
      * Method to retrieve a user by userId.
      *
      * @param string $userId
-     * @return User|null
+     * @return UserDto|null
      */
-    public function findById(string $userId): ?User
+    public function findById(string $userId): ?UserDto
     {
-        return $this->userModel->find($userId);
+        $user = $this->userModel->find($userId)->toArray();
+        return $this->mapSingleToDto($user);
     }
 
     /**
      * Method to retrieve a user by document.
      *
      * @param string $document
-     * @return User|null
+     * @return UserDto|null
      */
-    public function findByDocument(string $document): ?User
+    public function findByDocument(string $document): ?UserDto
     {
-        return $this->userModel->where('document', $document)->first();
+        $user = $this->userModel->where('document', $document)->first();
+        return $this->mapSingleToDto($user);
     }
 
     /**
      * Method to check if the user has sufficient balance for a transaction.
      *
+     * @param UserDto $user
      * @param float $amount
      * @return bool
      */
-    public function hasSufficientBalance(User $user, float $amount): bool
+    public function hasSufficientBalance(UserDto $user, float $amount): bool
     {
         return $user->balance >= $amount;
     }
@@ -98,14 +113,34 @@ class UserRepository implements UserRepositoryInterface
     /**
      * Method to update the user's balance after a transaction.
      *
-     * @param User $user
+     * @param UserDto $user
      * @param float $newUserBalance
-     * @param string $operation
      * @return bool
      */
-    public function updateBalance(User $user, float $newUserBalance): bool
+    public function updateBalance(UserDto $user, float $newUserBalance): bool
     {
-        $user->balance = $newUserBalance;
-        return $user->save();
+        $userToSave = $this->userModel->find($user->id);
+
+        $userToSave->balance = $newUserBalance;
+
+        return $userToSave->save();
+    }
+
+    private function mapSingleToDto(?array $user): ?UserDto
+    {
+        if(!$user) {
+            return null;
+        }
+
+        return new UserDto(
+            $user['id'],
+            $user['name'],
+            $user['email'],
+            $user['document'],
+            $user['balance'],
+            $user['type'],
+            $this->carbon->parse($user['created_at']),
+            $this->carbon->parse($user['updated_at'])
+        );
     }
 }

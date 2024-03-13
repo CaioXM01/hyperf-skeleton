@@ -2,17 +2,18 @@
 
 namespace App\Domain\Repository;
 
-use App\Infraestructure\Database\Model\Transaction;
+use App\Domain\DTO\Transaction\CreateTransactionDto;
+use App\Domain\DTO\Transaction\TransactionDto;
 
 interface TransactionRepositoryInterface
 {
     /**
      * Create a new transaction.
      *
-     * @param array $transactionData
-     * @return Transaction
+     * @param CreateTransactionDto $transactionData
+     * @return TransactionDto
      */
-    public function createTransaction(array $transactionData): Transaction;
+    public function createTransaction(CreateTransactionDto $transactionData): TransactionDto;
 
     /**
      * Rollback a transaction by its ID.
@@ -26,14 +27,14 @@ interface TransactionRepositoryInterface
      * Find a transaction by ID.
      *
      * @param string $transactionId
-     * @return Transaction|null
+     * @return TransactionDto|null
      */
-    public function findById(string $transactionId): ?Transaction;
+    public function findById(string $transactionId): ?TransactionDto;
 
     /**
      * Find all transactions.
      *
-     * @return Transaction[]|null
+     * @return TransactionDto[]|null
      */
     public function findAll(): ?array;
 

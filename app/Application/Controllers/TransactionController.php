@@ -4,6 +4,7 @@ namespace App\Application\Controllers;
 
 use App\Application\Services\Validation\Request\TransactionRequest;
 use App\Application\Services\Validation\Request\ChargebackTransactionRequest;
+use App\Domain\DTO\Transaction\CreateTransactionDto;
 use App\Domain\Services\Transaction\TransactionServiceInterface;
 use App\Infraestructure\HttpClients\TransferAuthorizationClient;
 use Fig\Http\Message\StatusCodeInterface;
@@ -29,7 +30,12 @@ class TransactionController extends AbstractController
 	{
         $request->validated();
 		try {
-			$this->transactionService->performTransaction($request->all());
+            $createTransactionDto = new CreateTransactionDto(
+                $request->input('value'),
+                $request->input('payer'),
+                $request->input('payee'),
+            );
+			$this->transactionService->performTransaction($createTransactionDto);
 			return $this->response->json(['status' => 'ok'], StatusCodeInterface::STATUS_CREATED);
 		} catch (\Exception $e) {
 			return $this->response->json(['status' => 'error', 'message' => $e->getMessage()], $e->getCode() || StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR);

@@ -2,8 +2,8 @@
 
 namespace App\Domain\Services\Validation;
 
+use App\Domain\DTO\User\UserDto;
 use App\Domain\HttpClients\TransferAuthorizationClientInterface;
-use App\Infraestructure\Database\Model\User;
 use Hyperf\Coroutine\Parallel;
 use Fig\Http\Message\StatusCodeInterface;
 use Exception;
@@ -30,7 +30,7 @@ class TransactionValidationService implements TransactionValidationServiceInterf
         }
     }
 
-    public function validateUsers(?User $payer, ?User $payee): void
+    public function validateUsers(?UserDto $payer, ?UserDto $payee): void
     {
         if (!$payer) {
             throw new Exception('User payer is not found.', StatusCodeInterface::STATUS_NOT_FOUND);
@@ -41,14 +41,14 @@ class TransactionValidationService implements TransactionValidationServiceInterf
         }
     }
 
-    public function validateUserBalance(?User $payer, float $amount): void
+    public function validateUserBalance(?UserDto $payer, float $amount): void
     {
         if (!$payer || $payer->balance < $amount) {
             throw new Exception('User does not have sufficient balance.', StatusCodeInterface::STATUS_UNPROCESSABLE_ENTITY);
         }
     }
 
-    public function validatePayerType(?User $payer): void
+    public function validatePayerType(?UserDto $payer): void
     {
         if (!$payer || $payer->type === 'shopkeeper') {
             throw new Exception('Shopkeeper cannot make transfers.', StatusCodeInterface::STATUS_METHOD_NOT_ALLOWED);
@@ -62,7 +62,7 @@ class TransactionValidationService implements TransactionValidationServiceInterf
         }
     }
 
-    public function validate(?User $payer, ?User $payee, float $amount): void
+    public function validate(?UserDto $payer, ?UserDto $payee, float $amount): void
     {
         $parallel = new Parallel();
 

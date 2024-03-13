@@ -4,14 +4,16 @@ declare(strict_types=1);
 
 namespace Tests;
 
-use App\Infraestructure\Database\Model\User;
-use App\Infraestructure\Database\Model\Transaction;
+use App\Domain\DTO\Transaction\CreateTransactionDto;
+use App\Domain\DTO\Transaction\TransactionDto;
+use App\Domain\DTO\User\UserDto;
 use App\Domain\Repository\TransactionRepositoryInterface;
 use App\Domain\Services\Notification\NotificationServiceInterface;
 use App\Domain\Services\Transaction\TransactionService;
 use App\Domain\Services\User\UserServiceInterface;
 use App\Domain\Services\Validation\TransactionValidationServiceInterface;
 use Hyperf\Testing\TestCase;
+use Carbon\Carbon;
 
 class TransactionServiceTest extends TestCase
 {
@@ -23,19 +25,41 @@ class TransactionServiceTest extends TestCase
         $notificationService = $this->createMock(NotificationServiceInterface::class);
 
         $transactionRepo->method('createTransaction')->willReturn(
-            new Transaction([
-                "id" => "8181b4dc-e5c9-4221-b20c-4decb9e54440",
-                "value" => 50.00,
-                "payer_id" => 1,
-                "payee_id" => 4,
-                "created_at" => "2024-03-06 23:27:53",
-                "updated_at" => "2024-03-06 23:27:53"
-            ])
+            new TransactionDto(
+                "8181b4dc-e5c9-4221-b20c-4decb9e54440",
+                50.00,
+                1,
+                4,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+            )
         );
 
         $userService->method('getUserById')->willReturn(
-            new User(['id' => 'payer_id', 'balance' => 100]),
-            new User(['id' => 'payee_id', 'balance' => 50])
+            new UserDto(
+                1,
+                'Test payer',
+                'payer@example.com',
+                '111111111111111',
+                1500,
+                'common',
+                Carbon::now(),
+                Carbon::now()
+            ),
+            new UserDto(
+                2,
+                'Test payee',
+                'payee@example.com',
+                '111111111111111',
+                2000,
+                'common',
+                Carbon::now(),
+                Carbon::now()
+            )
         );
 
         $userService->method('updateBalance')->willReturn(true);
@@ -49,13 +73,13 @@ class TransactionServiceTest extends TestCase
             $notificationService
         );
 
-        $transactionData = [
-            'payer' => 1,
-            'payee' => 4,
-            'value' => 50
-        ];
+        $createTransactionDto = new CreateTransactionDto(
+            50,
+            1,
+            2,
+        );
 
-        $result = $transactionService->performTransaction($transactionData);
+        $result = $transactionService->performTransaction($createTransactionDto);
 
         $this->assertTrue($result);
     }

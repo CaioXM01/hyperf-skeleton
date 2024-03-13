@@ -2,38 +2,39 @@
 
 namespace App\Domain\Repository;
 
-use App\Infraestructure\Database\Model\User;
+use App\Domain\DTO\User\CreateUserDto;
+use App\Domain\DTO\User\UserDto;
 
 interface UserRepositoryInterface
 {
     /**
      * Create a new user.
      *
-     * @param array $userData
-     * @return User
+     * @param CreateUserDto $userData
+     * @return bool
      */
-    public function createUser(User $userData): bool;
+    public function createUser(CreateUserDto $userData): bool;
 
     /**
      * Find a user by email.
      *
      * @param string $email
-     * @return User|null
+     * @return UserDto|null
      */
-    public function findByEmail(string $email): ?User;
+    public function findByEmail(string $email): ?UserDto;
 
     /**
      * Find a user by userId.
      *
      * @param string $userId
-     * @return User|null
+     * @return UserDto|null
      */
-    public function findById(string $userId): ?User;
+    public function findById(string $userId): ?UserDto;
 
     /**
      * Find all users.
      *
-     * @return User[]|null
+     * @return UserDto[]|null
      */
     public function findAll(): ?array;
 
@@ -41,25 +42,25 @@ interface UserRepositoryInterface
      * Find a user by document.
      *
      * @param string $document
-     * @return User|null
+     * @return UserDto|null
      */
-    public function findByDocument(string $document): ?User;
+    public function findByDocument(string $document): ?UserDto;
 
     /**
      * Check if the user has sufficient balance for a transaction.
      *
-     * @param User $user
+     * @param UserDto $user
      * @param float $amount
      * @return bool
      */
-    public function hasSufficientBalance(User $user, float $amount): bool;
+    public function hasSufficientBalance(UserDto $user, float $amount): bool;
 
     /**
      * Update the user's balance after a transaction.
      *
-     * @param User $user
+     * @param UserDto $user
      * @param float $newUserBalance
      * @return bool
      */
-    public function updateBalance(User $user, float $newUserBalance): bool;
+    public function updateBalance(UserDto $user, float $newUserBalance): bool;
 }
