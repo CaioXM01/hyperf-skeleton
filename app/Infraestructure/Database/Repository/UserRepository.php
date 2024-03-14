@@ -7,6 +7,8 @@ use App\Domain\DTO\User\UserDto;
 use App\Infraestructure\Database\Model\User;
 use App\Domain\Repository\UserRepositoryInterface;
 use Carbon\Carbon;
+use Exception;
+use Fig\Http\Message\StatusCodeInterface;
 
 class UserRepository implements UserRepositoryInterface
 {
@@ -82,8 +84,13 @@ class UserRepository implements UserRepositoryInterface
      */
     public function findById(string $userId): ?UserDto
     {
-        $user = $this->userModel->find($userId)->toArray();
-        return $this->mapSingleToDto($user);
+        $user = $this->userModel->find($userId);
+
+        if (!$user) {
+            throw new Exception('User not found.', StatusCodeInterface::STATUS_NOT_FOUND);
+        }
+
+        return $this->mapSingleToDto($user->toArray());
     }
 
     /**

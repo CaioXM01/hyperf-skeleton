@@ -35,39 +35,28 @@ class TransactionController extends AbstractController
 	public function performTransaction(TransactionRequest $request)
 	{
         $request->validated();
-		try {
-            $createTransactionDto = new CreateTransactionDto(
-                $request->input('value'),
-                $request->input('payer'),
-                $request->input('payee'),
-            );
-			$this->transactionService->performTransaction($createTransactionDto);
-            return $this->response->json($this->responseResource->toArray(), StatusCodeInterface::STATUS_CREATED);
-		} catch (\Exception $e) {
-			return $this->response->json(['status' => 'error', 'message' => $e->getMessage()], $e->getCode() || StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR);
-		}
+
+        $createTransactionDto = new CreateTransactionDto(
+            $request->input('value'),
+            $request->input('payer'),
+            $request->input('payee'),
+        );
+        $this->transactionService->performTransaction($createTransactionDto);
+        return $this->response->json($this->responseResource->toArray(), StatusCodeInterface::STATUS_CREATED);
+
 	}
 
     public function chargebackTransaction(ChargebackTransactionRequest $request)
 	{
         $transactionId = $this->request->route('id');
         $dataRequest = $request->validated();
-
-		try {
-			$this->transactionService->chargebackTransaction($transactionId, $dataRequest["chargeback_reason"]);
-            return $this->response->json($this->responseResource->toArray(), StatusCodeInterface::STATUS_CREATED);
-		} catch (\Exception $e) {
-			return $this->response->json(['status' => 'error', 'message' => $e->getMessage()], $e->getCode() || StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR);
-		}
+        $this->transactionService->chargebackTransaction($transactionId, $dataRequest["chargeback_reason"]);
+        return $this->response->json($this->responseResource->toArray(), StatusCodeInterface::STATUS_CREATED);
 	}
 
     public function findAllTransactions()
 	{
-		try {
-			$transactions = $this->transactionService->findAllTransactions();
-            return $this->response->json($this->responseResource->toArray($transactions), StatusCodeInterface::STATUS_OK);
-		} catch (\Exception $e) {
-			return $this->response->json(['status' => 'error', 'message' => $e->getMessage()], $e->getCode() || StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR);
-		}
+        $transactions = $this->transactionService->findAllTransactions();
+        return $this->response->json($this->responseResource->toArray($transactions), StatusCodeInterface::STATUS_OK);
 	}
 }

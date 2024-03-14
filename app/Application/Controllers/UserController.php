@@ -34,35 +34,24 @@ class UserController extends AbstractController
     public function register(UserRequest $request)
     {
         $request->validated();
-        try {
-            $createUserDto = new CreateUserDto(
-                $request->input('name'),
-                $request->input('email'),
-                $request->input('document'),
-                $request->input('password'),
-                $request->input('balance'),
-                $request->input('type')
-            );
 
-            $this->userService->registerUser($createUserDto);
-            return $this->response->json($this->responseResource->toArray(), StatusCodeInterface::STATUS_CREATED);
-        } catch (\Exception $e) {
-            return $this->response->json([
-                'status' => 'error',
-                'message' => $e->getMessage()
-            ])->withStatus($e->getCode() || StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR);
-        }
+        $createUserDto = new CreateUserDto(
+            $request->input('name'),
+            $request->input('email'),
+            $request->input('document'),
+            $request->input('password'),
+            $request->input('balance'),
+            $request->input('type')
+        );
+
+        $this->userService->registerUser($createUserDto);
+        return $this->response->json($this->responseResource->toArray(), StatusCodeInterface::STATUS_CREATED);
     }
 
     public function getUserById()
     {
         $userId = $this->request->route('id');
-
         $userResponse = $this->userService->getUserById($userId);
-        if ($userResponse === null) {
-            return $this->response->json(['error' => 'User not found'], StatusCodeInterface::STATUS_NOT_FOUND);
-        }
-
         return $this->response->json($this->responseResource->toArray($userResponse), StatusCodeInterface::STATUS_OK);
     }
 
