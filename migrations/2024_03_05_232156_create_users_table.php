@@ -12,15 +12,15 @@ class CreateUsersTable extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->string('name');
-            $table->string('email');
+            $table->bigIncrements('id')->index();
+            $table->string('name')->index();
+            $table->string('email')->index();
             $table->unique('email', 'unique_email');
-            $table->string('document');
+            $table->string('document')->index();
             $table->unique('document', 'unique_document');
             $table->string('password');
             $table->float('balance');
-            $table->string('type');
+            $table->string('type')->index();
             $table->timestamps();
         });
     }

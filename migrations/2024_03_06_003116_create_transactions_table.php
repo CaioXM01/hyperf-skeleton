@@ -12,7 +12,7 @@ class CreateTransactionsTable extends Migration
     public function up(): void
     {
         Schema::create('transactions', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+            $table->uuid('id')->primary()->index();
             $table->decimal('value', 10, 2);
             $table->unsignedBigInteger('payer_id');
             $table->unsignedBigInteger('payee_id');
