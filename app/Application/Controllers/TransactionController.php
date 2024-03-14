@@ -4,9 +4,9 @@ namespace App\Application\Controllers;
 
 use App\Application\Services\Validation\Request\TransactionRequest;
 use App\Application\Services\Validation\Request\ChargebackTransactionRequest;
+use App\Application\Resources\ResponseResource;
 use App\Domain\DTO\Transaction\CreateTransactionDto;
 use App\Domain\Services\Transaction\TransactionServiceInterface;
-use App\Infraestructure\HttpClients\TransferAuthorizationClient;
 use Fig\Http\Message\StatusCodeInterface;
 use Hyperf\Di\Annotation\Inject;
 
@@ -18,12 +18,18 @@ class TransactionController extends AbstractController
 	 */
 	protected $transactionService;
 
+    /**
+     * @Inject
+     * @var ResponseResource
+     */
+    protected $responseResource;
+
 	public function __construct(
         TransactionServiceInterface $transactionService,
-        private TransferAuthorizationClient $client
-    )
-	{
+        ResponseResource $responseResource
+    ) {
 		$this->transactionService = $transactionService;
+        $this->responseResource = $responseResource;
 	}
 
 	public function performTransaction(TransactionRequest $request)
@@ -36,7 +42,7 @@ class TransactionController extends AbstractController
                 $request->input('payee'),
             );
 			$this->transactionService->performTransaction($createTransactionDto);
-			return $this->response->json(['status' => 'ok'], StatusCodeInterface::STATUS_CREATED);
+            return $this->response->json($this->responseResource->toArray(), StatusCodeInterface::STATUS_CREATED);
 		} catch (\Exception $e) {
 			return $this->response->json(['status' => 'error', 'message' => $e->getMessage()], $e->getCode() || StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR);
 		}
@@ -49,7 +55,7 @@ class TransactionController extends AbstractController
 
 		try {
 			$this->transactionService->chargebackTransaction($transactionId, $dataRequest["chargeback_reason"]);
-			return $this->response->json(['status' => 'ok'], StatusCodeInterface::STATUS_CREATED);
+            return $this->response->json($this->responseResource->toArray(), StatusCodeInterface::STATUS_CREATED);
 		} catch (\Exception $e) {
 			return $this->response->json(['status' => 'error', 'message' => $e->getMessage()], $e->getCode() || StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR);
 		}
@@ -59,7 +65,7 @@ class TransactionController extends AbstractController
 	{
 		try {
 			$transactions = $this->transactionService->findAllTransactions();
-			return $this->response->json($transactions, StatusCodeInterface::STATUS_OK);
+            return $this->response->json($this->responseResource->toArray($transactions), StatusCodeInterface::STATUS_OK);
 		} catch (\Exception $e) {
 			return $this->response->json(['status' => 'error', 'message' => $e->getMessage()], $e->getCode() || StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR);
 		}

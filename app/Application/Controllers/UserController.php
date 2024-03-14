@@ -3,6 +3,7 @@
 namespace App\Application\Controllers;
 
 use App\Application\Services\Validation\Request\UserRequest;
+use App\Application\Resources\ResponseResource;
 use App\Domain\DTO\User\CreateUserDto;
 use App\Domain\Services\User\UserServiceInterface;
 use Fig\Http\Message\StatusCodeInterface;
@@ -16,9 +17,18 @@ class UserController extends AbstractController
      */
     protected $userService;
 
-    public function __construct(UserServiceInterface $userService)
-    {
+    /**
+     * @Inject
+     * @var ResponseResource
+     */
+    protected $responseResource;
+
+    public function __construct(
+        UserServiceInterface $userService,
+        ResponseResource $responseResource
+    ) {
         $this->userService = $userService;
+        $this->responseResource = $responseResource;
     }
 
     public function register(UserRequest $request)
@@ -35,7 +45,7 @@ class UserController extends AbstractController
             );
 
             $this->userService->registerUser($createUserDto);
-            return $this->response->json(['status' => 'ok'], StatusCodeInterface::STATUS_CREATED);
+            return $this->response->json($this->responseResource->toArray(), StatusCodeInterface::STATUS_CREATED);
         } catch (\Exception $e) {
             return $this->response->json([
                 'status' => 'error',
@@ -53,12 +63,12 @@ class UserController extends AbstractController
             return $this->response->json(['error' => 'User not found'], StatusCodeInterface::STATUS_NOT_FOUND);
         }
 
-        return $this->response->json($userResponse, StatusCodeInterface::STATUS_OK);
+        return $this->response->json($this->responseResource->toArray($userResponse), StatusCodeInterface::STATUS_OK);
     }
 
     public function getAllUsers()
     {
         $users = $this->userService->getAllUsers();
-        return $this->response->json($users, StatusCodeInterface::STATUS_OK);
+        return $this->response->json($this->responseResource->toArray($users), StatusCodeInterface::STATUS_OK);
     }
 }
