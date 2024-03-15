@@ -8,14 +8,13 @@
 FROM hyperf/hyperf:8.2-alpine-v3.18-swoole-v5.0
 LABEL maintainer="Hyperf Developers <group@hyperf.io>" version="1.0" license="MIT" app.name="Hyperf"
 
-##
-# ---------- env settings ----------
-##
-# --build-arg timezone=Asia/Shanghai
-ARG timezone
+# Set the timezone argument
+ARG timezone=America/Sao_Paulo
 
-ENV TIMEZONE=${timezone:-"Asia/Shanghai"} \
-    APP_ENV=prod \
+# Set environment variables
+ENV COMPOSER_ALLOW_SUPERUSER=1 \
+    TIMEZONE=$timezone \
+    APP_ENV=dev \
     SCAN_CACHEABLE=(true)
 
 # update
@@ -40,15 +39,14 @@ RUN set -ex \
     && rm -rf /var/cache/apk/* /tmp/* /usr/share/man \
     && echo -e "\033[42;37m Build Completed :).\033[0m\n"
 
-WORKDIR /opt/www
+RUN mkdir -p /var/www/app
+WORKDIR /var/www/app
 
-# Composer Cache
-# COPY ./composer.* /opt/www/
-# RUN composer install --no-dev --no-scripts
-
-COPY . /opt/www
-RUN composer install --no-dev -o && php bin/hyperf.php
+COPY . /var/www/app
+RUN composer install --no-interaction
 
 EXPOSE 9501
 
-ENTRYPOINT ["php", "/opt/www/bin/hyperf.php", "start"]
+# Command to run the application
+WORKDIR /var/www/app
+CMD ["php", "/var/www/app/bin/hyperf.php", "server:watch"]

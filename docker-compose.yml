@@ -3,11 +3,11 @@ version: '3.9'
 services:
   hyperf-skeleton:
     container_name: hyperf-skeleton
-    image: hyperf/hyperf:8.2-alpine-v3.18-swoole-v5.0
-    working_dir: /app
-    entrypoint: ["php", "bin/hyperf.php", "server:watch"]
+    build:
+      context: .
+      dockerfile: Dockerfile
     volumes:
-      - ./:/app
+      - ./:/var/www/app
     ports:
       - 9501:9501
     depends_on:
@@ -30,3 +30,8 @@ services:
     image: redis:latest
     ports:
       - 6379:6379
+
+networks:
+  default:
+    driver: bridge
+    name: hyperf-network
