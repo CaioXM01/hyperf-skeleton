@@ -87,14 +87,13 @@ class TransactionRepository implements TransactionRepositoryInterface
      */
     public function setRefund(string $transactionId, string $chargebackReason): bool
     {
-        $transaction = $this->transactionModel->find($transactionId);
-        if ($transaction) {
-            $transaction->chargeback_at = $this->carbon->now();
-            $transaction->chargeback_reason = $chargebackReason;
-            $transaction->save();
-            return true;
-        }
-        return false;
+        return $this->transactionModel
+        ->where('id', $transactionId)
+        ->lockForUpdate()
+        ->update([
+            'chargeback_at' => $this->carbon->now(),
+            'chargeback_reason' => $chargebackReason
+        ]);
     }
 
     /**
@@ -105,13 +104,10 @@ class TransactionRepository implements TransactionRepositoryInterface
      */
     public function setTransferred(string $transactionId): bool
     {
-        $transaction = $this->transactionModel->find($transactionId);
-        if ($transaction) {
-            $transaction->transferred_at = $this->carbon->now();
-            $transaction->save();
-            return true;
-        }
-        return false;
+        return $this->transactionModel
+        ->where('id', $transactionId)
+        ->lockForUpdate()
+        ->update(['transferred_at' => $this->carbon->now()]);
     }
 
     /**
@@ -122,13 +118,10 @@ class TransactionRepository implements TransactionRepositoryInterface
      */
     public function setNotification(string $transactionId): bool
     {
-        $transaction = $this->transactionModel->find($transactionId);
-        if ($transaction) {
-            $transaction->notified_at = $this->carbon->now();
-            $transaction->save();
-            return true;
-        }
-        return false;
+        return $this->transactionModel
+        ->where('id', $transactionId)
+        ->lockForUpdate()
+        ->update(['notified_at' => $this->carbon->now()]);
     }
 
     private function mapSingleToDto(?Transaction $transaction): ?TransactionDto

@@ -3,6 +3,7 @@
 namespace App\Domain\Services\Transaction;
 
 use App\Domain\DTO\Transaction\CreateTransactionDto;
+use App\Domain\DTO\Transaction\TransactionDto;
 use App\Domain\DTO\User\UserDto;
 use App\Domain\Services\User\UserServiceInterface;
 use App\Domain\Repository\TransactionRepositoryInterface;
@@ -66,42 +67,101 @@ class TransactionService implements TransactionServiceInterface
 
         $transaction = $this->transactionRepo->createTransaction($transactionData);
 
-        $currentPayerBalance = $payer->balance;
-        $currentPayeeBalance = $payee->balance;
-
-        try {
-            $parallel = new Parallel();
-            $parallel->add(fn () => $this->userService->updateBalance($payer, $amount, 'debit'));
-            $parallel->add(fn () => $this->userService->updateBalance($payee, $amount, 'credit'));
-            $parallel->add(fn () => $this->transactionRepo->setTransferred($transaction->id));
-            $parallel->wait();
-        } catch (Exception $e) {
-            $this->rollbackTransaction($payer, $currentPayerBalance, $payee, $currentPayeeBalance, $transaction->id);
-            throw new Exception('Transaction failed: ' . $e->getMessage(), $e->getCode());
-        }
-
+        $this->executeTransaction($transaction, $amount, $payer, $payee);
         $this->sendNotification($transaction->id);
         return true;
     }
 
-    public function rollbackTransaction(
+    private function executeTransaction(
+        TransactionDto $transaction,
+        float $amount,
+        UserDto $payer,
+        UserDto $payee,
+    ): void
+    {
+        $this->handleTransactionDebit($transaction, $amount, $payer, $payee);
+        $this->handleTransactionCredit($transaction, $amount, $payer, $payee);
+        $this->markTransactionAsTransferred($transaction, $amount, $payer, $payee);
+    }
+
+    private function handleTransactionDebit(
+        TransactionDto $transaction,
+        float $amount,
+        UserDto $payer,
+        UserDto $payee,
+    ): void
+    {
+        try {
+            $debitOperationCheck = $this->userService->updateBalance($payer, $amount, 'debit');
+
+            if(!$debitOperationCheck) {
+                $this->rollbackTransaction($payer, $payee, $amount, $transaction->id, false, false);
+                throw new Exception('The amount was not debited from the payer user', StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR);
+            }
+        } catch ( Exception $e ) {
+            $this->rollbackTransaction($payer, $payee, $amount, $transaction->id, false, false);
+            throw new Exception('Failure to debit the amount from the payer user', StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private function handleTransactionCredit(
+        TransactionDto $transaction,
+        float $amount,
+        UserDto $payer,
+        UserDto $payee,
+    ): void
+    {
+        try {
+            $creditOperationCheck = $this->userService->updateBalance($payee, $amount, 'credit');
+
+            if(!$creditOperationCheck) {
+                $this->rollbackTransaction($payer, $payee, $amount, $transaction->id, true, false);
+                throw new Exception('The amount was not credit from the payee user', StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR);
+            }
+        } catch ( Exception $e ) {
+            $this->rollbackTransaction($payer, $payee, $amount, $transaction->id, true, false);
+            throw new Exception('Failure to credit the amount from the payee user', StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private function markTransactionAsTransferred(
+        TransactionDto $transaction,
+        float $amount,
+        UserDto $payer,
+        UserDto $payee,
+    ): void
+    {
+        try {
+            $this->transactionRepo->setTransferred($transaction->id);
+        } catch (Exception $e) {
+            $this->rollbackTransaction($payer, $payee, $amount, $transaction->id, true, true);
+            throw new Exception('Transaction failed: ' . $e->getMessage(), $e->getCode());
+        }
+    }
+
+    private function rollbackTransaction(
         UserDto $oldPayer,
-        float $oldPayerBalance,
         UserDto $oldPayee,
-        float $oldPayeeBalance,
-        string $transactionId
+        float $amount,
+        string $transactionId,
+        float $enableRollbackPayer,
+        float $enableRollbackPayee
     ): bool
     {
         $parallel = new Parallel();
-        $parallel->add(fn () => $this->userService->rollbackBalance($oldPayer, $oldPayerBalance));
-        $parallel->add(fn () => $this->userService->rollbackBalance($oldPayee, $oldPayeeBalance));
+        if($enableRollbackPayer){
+            $parallel->add(fn () => $this->userService->updateBalance($oldPayer, $amount, 'credit'));
+        }
+        if($enableRollbackPayee){
+            $parallel->add(fn () => $this->userService->updateBalance($oldPayee, $amount, 'debit'));
+        }
         $parallel->add(fn () => $this->transactionRepo->rollbackTransactionById($transactionId));
         $parallel->wait();
 
         return true;
     }
 
-    public function sendNotification(string $transactionId): bool
+    private function sendNotification(string $transactionId): bool
     {
         $notification = $this->notificationService->sendNotification();
         if ($notification) {

@@ -40,13 +40,4 @@ interface UserServiceInterface
      * @return bool
      */
     public function updateBalance(UserDto $user, float $amount, string $operation): bool;
-
-    /**
-     * Rollback user balance.
-     *
-     * @param UserDto $user
-     * @param float $userBalance
-     * @return bool
-     */
-    public function rollbackBalance(UserDto $user, float $userBalance): bool;
 }

@@ -118,19 +118,40 @@ class UserRepository implements UserRepositoryInterface
     }
 
     /**
-     * Method to update the user's balance after a transaction.
+     * Method to increase the user's balance.
      *
      * @param UserDto $user
-     * @param float $newUserBalance
+     * @param float $amount
      * @return bool
      */
-    public function updateBalance(UserDto $user, float $newUserBalance): bool
+    public function incrementBalance(UserDto $user, float $amount): bool
     {
-        $userToSave = $this->userModel->find($user->id);
+        return $this->userModel
+            ->where('id', $user->id)
+            ->lockForUpdate()
+            ->increment('balance', $amount);
+    }
 
-        $userToSave->balance = $newUserBalance;
+    /**
+     * Method to decrement the user's balance.
+     *
+     * @param UserDto $user
+     * @param float $amount
+     * @return bool
+     */
+    public function decrementBalance(UserDto $user, float $amount): bool
+    {
+        $affectedRows = $this->userModel
+        ->where('id', $user->id)
+        ->where('balance', '>=', $amount)
+        ->lockForUpdate()
+        ->decrement('balance', $amount);
 
-        return $userToSave->save();
+        if ($affectedRows === 0) {
+            throw new Exception('Insufficient balance to perform the transaction.');
+        }
+
+        return true;
     }
 
     private function mapSingleToDto(?array $user): ?UserDto

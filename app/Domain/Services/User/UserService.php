@@ -71,21 +71,12 @@ class UserService implements UserServiceInterface
             throw new Exception('Invalid operation.', StatusCodeInterface::STATUS_BAD_REQUEST);
         }
 
-        $newUserBalance = $user->balance;
-
         if ($operation === OperationEnum::CREDIT) {
-            $newUserBalance += $amount;
+            return $this->userRepository->incrementBalance($user, $amount);
         }
 
         if ($operation === OperationEnum::DEBIT) {
-            $newUserBalance -= $amount;
-        }
-
-        return $this->userRepository->updateBalance($user, $newUserBalance);
-    }
-
-    public function rollbackBalance(UserDto $user, float $userBalance): bool
-    {
-        return $this->userRepository->updateBalance($user, $userBalance);
+            return $this->userRepository->decrementBalance($user, $amount);
+        };
     }
 }

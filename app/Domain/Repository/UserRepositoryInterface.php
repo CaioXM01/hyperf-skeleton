@@ -56,11 +56,20 @@ interface UserRepositoryInterface
     public function hasSufficientBalance(UserDto $user, float $amount): bool;
 
     /**
-     * Update the user's balance after a transaction.
+     * Method to increase the user's balance.
      *
      * @param UserDto $user
-     * @param float $newUserBalance
+     * @param float $amount
      * @return bool
      */
-    public function updateBalance(UserDto $user, float $newUserBalance): bool;
+    public function incrementBalance(UserDto $user, float $amount): bool;
+
+    /**
+     * Method to decrement the user's balance.
+     *
+     * @param UserDto $user
+     * @param float $amount
+     * @return bool
+     */
+    public function decrementBalance(UserDto $user, float $amount): bool;
 }
